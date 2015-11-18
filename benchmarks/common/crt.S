@@ -5,14 +5,32 @@
 #ifdef __riscv64
 # define LREG ld
 # define SREG sd
+# define REGBYTES 8
 #else
 # define LREG lw
 # define SREG sw
+# define REGBYTES 4
 #endif
 
   .text
-  .globl _start
+  .align 6
+user_trap_entry:
+  j trap_entry
 
+  .align 6
+supervisor_trap_entry:
+  j supervisor_trap_entry
+
+  .align 6
+hypervisor_trap_entry:
+  j hypervisor_trap_entry
+
+  .align 6
+machine_trap_entry:
+  j trap_entry
+
+  .align 6
+  .globl _start
 _start:
   li  x1, 0
   li  x2, 0
@@ -46,23 +64,31 @@ _start:
   li  x30,0
   li  x31,0
 
-  # initialize status, enable fp, accelerator, interrupts
-  li a0, SR_S | SR_PEI | SR_EF | SR_EA
-  csrw status, a0
+  li t0, MSTATUS_PRV1; csrc mstatus, t0    # run tests in user mode
+  li t0, MSTATUS_IE1;  csrs mstatus, t0    # enable interrupts in user mode
+  li t0, MSTATUS_FS;   csrs mstatus, t0    # enable FPU
+  li t0, MSTATUS_XS;   csrs mstatus, t0    # enable accelerator
 
 #ifdef __riscv64
-  li a0, SR_U64 | SR_S64
-  csrs status, a0
+  csrr t0, mcpuid
+  # make sure processor supports RV64 if this was compiled for RV64
+  bltz t0, 1f
+  li a0, 1234
+  j tohost_exit
+1:
 #endif
 
-  csrr t0, status
-  and t1, t0, SR_EA
+  csrr t0, mstatus
+  li t1, MSTATUS_XS
+  and t1, t0, t1
   sw t1, have_vec, t2
 
   ## if that didn't stick, we don't have a FPU, so don't initialize it
-  and t1, t0, SR_EF
+  li t1, MSTATUS_FS
+  and t1, t0, t1
   beqz t1, 1f
 
+#ifdef __riscv_hard_float
   fssr    x0
   fmv.s.x f0, x0
   fmv.s.x f1, x0
@@ -96,17 +122,21 @@ _start:
   fmv.s.x f29,x0
   fmv.s.x f30,x0
   fmv.s.x f31,x0
+#endif
+
 1:
 
-  la t0, trap_entry
-  csrw evec, t0
+  # initialize global pointer
+  la gp, _gp
 
   la  tp, _end + 63
   and tp, tp, -64
 
-  # get core id and number of cores
-  csrr a0, hartid
-  lw a1, 4(zero)
+  # get core id
+  csrr a0, mhartid
+  # for now, assume only 1 core
+  li a1, 1
+1:bgeu a0, a1, 1b
 
   # give each core 128KB of stack + TLS
 #define STKSHIFT 17
@@ -117,94 +147,84 @@ _start:
   add sp, sp, tp
 
   la t0, _init
-  csrw epc, t0
-  sret
+  csrw mepc, t0
+  eret
 
 trap_entry:
   addi sp, sp, -272
 
-  SREG x1, 8(sp)
-  SREG x2, 16(sp)
-  SREG x3, 24(sp)
-  SREG x4, 32(sp)
-  SREG x5, 40(sp)
-  SREG x6, 48(sp)
-  SREG x7, 56(sp)
-  SREG x8, 64(sp)
-  SREG x9, 72(sp)
-  SREG x10, 80(sp)
-  SREG x11, 88(sp)
-  SREG x12, 96(sp)
-  SREG x13, 104(sp)
-  SREG x14, 112(sp)
-  SREG x15, 120(sp)
-  SREG x16, 128(sp)
-  SREG x17, 136(sp)
-  SREG x18, 144(sp)
-  SREG x19, 152(sp)
-  SREG x20, 160(sp)
-  SREG x21, 168(sp)
-  SREG x22, 176(sp)
-  SREG x23, 184(sp)
-  SREG x24, 192(sp)
-  SREG x25, 200(sp)
-  SREG x26, 208(sp)
-  SREG x27, 216(sp)
-  SREG x28, 224(sp)
-  SREG x29, 232(sp)
-  SREG x30, 240(sp)
-  SREG x31, 248(sp)
+  SREG x1, 1*REGBYTES(sp)
+  SREG x2, 2*REGBYTES(sp)
+  SREG x3, 3*REGBYTES(sp)
+  SREG x4, 4*REGBYTES(sp)
+  SREG x5, 5*REGBYTES(sp)
+  SREG x6, 6*REGBYTES(sp)
+  SREG x7, 7*REGBYTES(sp)
+  SREG x8, 8*REGBYTES(sp)
+  SREG x9, 9*REGBYTES(sp)
+  SREG x10, 10*REGBYTES(sp)
+  SREG x11, 11*REGBYTES(sp)
+  SREG x12, 12*REGBYTES(sp)
+  SREG x13, 13*REGBYTES(sp)
+  SREG x14, 14*REGBYTES(sp)
+  SREG x15, 15*REGBYTES(sp)
+  SREG x16, 16*REGBYTES(sp)
+  SREG x17, 17*REGBYTES(sp)
+  SREG x18, 18*REGBYTES(sp)
+  SREG x19, 19*REGBYTES(sp)
+  SREG x20, 20*REGBYTES(sp)
+  SREG x21, 21*REGBYTES(sp)
+  SREG x22, 22*REGBYTES(sp)
+  SREG x23, 23*REGBYTES(sp)
+  SREG x24, 24*REGBYTES(sp)
+  SREG x25, 25*REGBYTES(sp)
+  SREG x26, 26*REGBYTES(sp)
+  SREG x27, 27*REGBYTES(sp)
+  SREG x28, 28*REGBYTES(sp)
+  SREG x29, 29*REGBYTES(sp)
+  SREG x30, 30*REGBYTES(sp)
+  SREG x31, 31*REGBYTES(sp)
 
-  csrr t0, sup0
-  csrr t1, status
-  SREG t0, 256(sp)
-  SREG t1, 264(sp)
-
-  csrr a0, cause
-  csrr a1, epc
+  csrr a0, mcause
+  csrr a1, mepc
   mv a2, sp
   jal handle_trap
-  csrw epc, a0
+  csrw mepc, a0
 
-  LREG t0, 256(sp)
-  LREG t1, 264(sp)
-  csrw sup0, t0
-  csrw status, t1
-
-  LREG x1, 8(sp)
-  LREG x2, 16(sp)
-  LREG x3, 24(sp)
-  LREG x4, 32(sp)
-  LREG x5, 40(sp)
-  LREG x6, 48(sp)
-  LREG x7, 56(sp)
-  LREG x8, 64(sp)
-  LREG x9, 72(sp)
-  LREG x10, 80(sp)
-  LREG x11, 88(sp)
-  LREG x12, 96(sp)
-  LREG x13, 104(sp)
-  LREG x14, 112(sp)
-  LREG x15, 120(sp)
-  LREG x16, 128(sp)
-  LREG x17, 136(sp)
-  LREG x18, 144(sp)
-  LREG x19, 152(sp)
-  LREG x20, 160(sp)
-  LREG x21, 168(sp)
-  LREG x22, 176(sp)
-  LREG x23, 184(sp)
-  LREG x24, 192(sp)
-  LREG x25, 200(sp)
-  LREG x26, 208(sp)
-  LREG x27, 216(sp)
-  LREG x28, 224(sp)
-  LREG x29, 232(sp)
-  LREG x30, 240(sp)
-  LREG x31, 248(sp)
+  LREG x1, 1*REGBYTES(sp)
+  LREG x2, 2*REGBYTES(sp)
+  LREG x3, 3*REGBYTES(sp)
+  LREG x4, 4*REGBYTES(sp)
+  LREG x5, 5*REGBYTES(sp)
+  LREG x6, 6*REGBYTES(sp)
+  LREG x7, 7*REGBYTES(sp)
+  LREG x8, 8*REGBYTES(sp)
+  LREG x9, 9*REGBYTES(sp)
+  LREG x10, 10*REGBYTES(sp)
+  LREG x11, 11*REGBYTES(sp)
+  LREG x12, 12*REGBYTES(sp)
+  LREG x13, 13*REGBYTES(sp)
+  LREG x14, 14*REGBYTES(sp)
+  LREG x15, 15*REGBYTES(sp)
+  LREG x16, 16*REGBYTES(sp)
+  LREG x17, 17*REGBYTES(sp)
+  LREG x18, 18*REGBYTES(sp)
+  LREG x19, 19*REGBYTES(sp)
+  LREG x20, 20*REGBYTES(sp)
+  LREG x21, 21*REGBYTES(sp)
+  LREG x22, 22*REGBYTES(sp)
+  LREG x23, 23*REGBYTES(sp)
+  LREG x24, 24*REGBYTES(sp)
+  LREG x25, 25*REGBYTES(sp)
+  LREG x26, 26*REGBYTES(sp)
+  LREG x27, 27*REGBYTES(sp)
+  LREG x28, 28*REGBYTES(sp)
+  LREG x29, 29*REGBYTES(sp)
+  LREG x30, 30*REGBYTES(sp)
+  LREG x31, 31*REGBYTES(sp)
 
   addi sp, sp, 272
-  sret
+  eret
 
 .section ".tdata.begin"
 .globl _tdata_begin

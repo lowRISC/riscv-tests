@@ -492,12 +492,12 @@ test_ ## testnum: \
   TEST_FP_OP_S_INTERNAL( testnum, 0, float result, val1, 0.0, 0.0, \
                     fcvt.d.s f3, f0; fcvt.s.d f3, f3; fmv.x.s a0, f3)
 
-#define TEST_FP_OP1_S( testnum, inst, result, val1 ) \
-  TEST_FP_OP_S_INTERNAL( testnum, 0, float result, val1, 0.0, 0.0, \
+#define TEST_FP_OP1_S( testnum, inst, flags, result, val1 ) \
+  TEST_FP_OP_S_INTERNAL( testnum, flags, float result, val1, 0.0, 0.0, \
                     inst f3, f0; fmv.x.s a0, f3)
 
-#define TEST_FP_OP1_D( testnum, inst, result, val1 ) \
-  TEST_FP_OP_D_INTERNAL( testnum, 0, double result, val1, 0.0, 0.0, \
+#define TEST_FP_OP1_D( testnum, inst, flags, result, val1 ) \
+  TEST_FP_OP_D_INTERNAL( testnum, flags, double result, val1, 0.0, 0.0, \
                     inst f3, f0; fmv.x.d a0, f3)
 
 #define TEST_FP_OP2_S( testnum, inst, flags, result, val1, val2 ) \
@@ -564,131 +564,6 @@ test_ ## testnum: \
   .double result; \
 1:
 
-
-#-----------------------------------------------------------------------
-# RV64SV MACROS
-#-----------------------------------------------------------------------
-
-#define TEST_ILLEGAL_TVEC_REGID( testnum, nxreg, nfreg, inst, reg1, reg2) \
-  csrs status, SR_EI; \
-  la a0, handler ## testnum; \
-  csrw evec, a0; \
-  vsetcfg nxreg, nfreg; \
-  li a0, 4; \
-  vsetvl a0, a0; \
-  la a0, src1; \
-  la a1, src2; \
-  vld vx2, a0; \
-  vld vx3, a1; \
-  lui a0,%hi(vtcode1 ## testnum); \
-  vf %lo(vtcode1 ## testnum)(a0); \
-  la reg2, dest; \
-illegal ## testnum: \
-  inst reg1, reg2; \
-  la a3, dest; \
-  vsd vx2, a3; \
-  fence; \
-vtcode1 ## testnum: \
-  add x2, x2, x3; \
-  stop; \
-vtcode2 ## testnum: \
-  add x2, x2, x3; \
-  stop; \
-handler ## testnum: \
-  vxcptkill; \
-  li TESTNUM,2; \
-  vxcptcause a0; \
-  li a1,HWACHA_CAUSE_TVEC_ILLEGAL_REGID; \
-  bne a0,a1,fail; \
-  vxcptaux a0; \
-  la a1, illegal ## testnum; \
-  lw a2, 0(a1); \
-  bne a0, a2, fail; \
-  vsetcfg 32,0; \
-  li a0,4; \
-  vsetvl a0,a0; \
-  la a0,src1; \
-  la a1,src2; \
-  vld vx2,a0; \
-  vld vx3,a1; \
-  lui a0,%hi(vtcode2 ## testnum); \
-  vf %lo(vtcode2 ## testnum)(a0); \
-  la a3,dest; \
-  vsd vx2,a3; \
-  fence; \
-  ld a1,0(a3); \
-  li a2,5; \
-  li TESTNUM,2; \
-  bne a1,a2,fail; \
-  ld a1,8(a3); \
-  li TESTNUM,3; \
-  bne a1,a2,fail; \
-  ld a1,16(a3); \
-  li TESTNUM,4; \
-  bne a1,a2,fail; \
-  ld a1,24(a3); \
-  li TESTNUM,5; \
-  bne a1,a2,fail; \
-
-#define TEST_ILLEGAL_VT_REGID( testnum, nxreg, nfreg, inst, reg1, reg2, reg3) \
-  csrs status, SR_EI; \
-  la a0, handler ## testnum; \
-  csrw evec, a0; \
-  vsetcfg nxreg, nfreg; \
-  li a0, 4; \
-  vsetvl a0, a0; \
-  la a0, src1; \
-  la a1, src2; \
-  vld vx2, a0; \
-  vld vx3, a1; \
-  lui a0,%hi(vtcode1 ## testnum); \
-  vf %lo(vtcode1 ## testnum)(a0); \
-  la a3, dest; \
-  vsd vx2, a3; \
-  fence; \
-vtcode1 ## testnum: \
-  add x2, x2, x3; \
-illegal ## testnum: \
-  inst reg1, reg2, reg3; \
-  stop; \
-vtcode2 ## testnum: \
-  add x2, x2, x3; \
-  stop; \
-handler ## testnum: \
-  vxcptkill; \
-  li TESTNUM,2; \
-  vxcptcause a0; \
-  li a1,HWACHA_CAUSE_VF_ILLEGAL_REGID; \
-  bne a0,a1,fail; \
-  vxcptaux a0; \
-  la a1,illegal ## testnum; \
-  bne a0,a1,fail; \
-  vsetcfg 32,0; \
-  li a0,4; \
-  vsetvl a0,a0; \
-  la a0,src1; \
-  la a1,src2; \
-  vld vx2,a0; \
-  vld vx3,a1; \
-  lui a0,%hi(vtcode2 ## testnum); \
-  vf %lo(vtcode2 ## testnum)(a0); \
-  la a3,dest; \
-  vsd vx2,a3; \
-  fence; \
-  ld a1,0(a3); \
-  li a2,5; \
-  li TESTNUM,2; \
-  bne a1,a2,fail; \
-  ld a1,8(a3); \
-  li TESTNUM,3; \
-  bne a1,a2,fail; \
-  ld a1,16(a3); \
-  li TESTNUM,4; \
-  bne a1,a2,fail; \
-  ld a1,24(a3); \
-  li TESTNUM,5; \
-  bne a1,a2,fail; \
-
 #-----------------------------------------------------------------------
 # Pass and fail code (assumes test num is in TESTNUM)
 #-----------------------------------------------------------------------
@@ -696,7 +571,7 @@ handler ## testnum: \
 #define TEST_PASSFAIL \
         bne x0, TESTNUM, pass; \
 fail: \
-        RVTEST_FAIL \
+        RVTEST_FAIL; \
 pass: \
         RVTEST_PASS \
 

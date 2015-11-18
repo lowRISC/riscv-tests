@@ -13,27 +13,41 @@
 RVTEST_RV64S
 RVTEST_CODE_BEGIN
 
-  # Set up evec in case we trap.
-  la t0, evec
-  csrw evec, t0
-  csrwi count, 0
+#ifdef __MACHINE_MODE
+  #define sscratch mscratch
+  #define sstatus mstatus
+  #define scause mcause
+  #define sepc mepc
+  #define stvec_handler mtvec_handler
+  #undef SSTATUS_PS
+  #define SSTATUS_PS MSTATUS_PRV1
+#endif
 
-  csrwi sup0, 3
-  TEST_CASE( 2, a0,         3, csrr a0, sup0);
-  TEST_CASE( 3, a1,         3, csrrci a1, sup0, 1);
-  TEST_CASE( 4, a2,         2, csrrsi a2, sup0, 4);
-  TEST_CASE( 5, a3,         6, csrrwi a3, sup0, 2);
-  TEST_CASE( 6, a1,         2, li a0, 0xbad1dea; csrrw a1, sup0, a0);
-  TEST_CASE( 7, a0, 0xbad1dea, li a0, 0x0001dea; csrrc a0, sup0, a0);
-  TEST_CASE( 8, a0, 0xbad0000, li a0, 0x000beef; csrrs a0, sup0, a0);
-  TEST_CASE( 9, a0, 0xbadbeef, csrr a0, sup0);
+  csrwi cyclew, 0
+
+  csrwi sscratch, 3
+  TEST_CASE( 2, a0,         3, csrr a0, sscratch);
+  TEST_CASE( 3, a1,         3, csrrci a1, sscratch, 1);
+  TEST_CASE( 4, a2,         2, csrrsi a2, sscratch, 4);
+  TEST_CASE( 5, a3,         6, csrrwi a3, sscratch, 2);
+  TEST_CASE( 6, a1,         2, li a0, 0xbad1dea; csrrw a1, sscratch, a0);
+  TEST_CASE( 7, a0, 0xbad1dea, li a0, 0x0001dea; csrrc a0, sscratch, a0);
+  TEST_CASE( 8, a0, 0xbad0000, li a0, 0x000beef; csrrs a0, sscratch, a0);
+  TEST_CASE( 9, a0, 0xbadbeef, csrr a0, sscratch);
 
   # Make sure writing the cycle counter causes an exception.
   TEST_CASE(10, a0, 255, li a0, 255; csrrw a0, cycle, x0);
 
+  # jump to user land
+  li t0, SSTATUS_PS
+  csrc sstatus, t0
+  la t0, 1f
+  csrw sepc, t0
+  sret
+  1:
+
   # Make sure reading status in user mode causes an exception.
-  csrci status, SR_S|SR_PS
-  TEST_CASE(11, a0, 255, li a0, 255; csrr a0, status);
+  TEST_CASE(11, a0, 255, li a0, 255; csrr a0, sstatus);
 
   # Make sure rdcycle is legal in user mode.
   TEST_CASE(12, x0, 0, rdcycle a0)
@@ -44,7 +58,7 @@ RVTEST_CODE_BEGIN
   # We should only fall through to this if scall failed.
   TEST_PASSFAIL
 
-evec:
+stvec_handler:
   # Trapping on tests 10, 11, and 13 is usually good news.
   # Note that since the test didn't complete, TESTNUM is smaller by 1.
   li t0, 9
@@ -58,20 +72,20 @@ evec:
   j fail
 
 privileged:
-  # Make sure CAUSE indicates a lack of privilege.
-  csrr t0, cause
-  li t1, CAUSE_PRIVILEGED_INSTRUCTION
+  # Make sure scause indicates a lack of privilege.
+  csrr t0, scause
+  li t1, CAUSE_ILLEGAL_INSTRUCTION
   bne t0, t1, fail
   # Return to user mode, but skip the trapping instruction.
-  csrr t0, epc
+  csrr t0, sepc
   addi t0, t0, 4
-  csrw epc, t0
+  csrw sepc, t0
   sret
 
 syscall:
-  # Make sure CAUSE indicates a syscall.
-  csrr t0, cause
-  li t1, CAUSE_SYSCALL
+  # Make sure scause indicates a syscall.
+  csrr t0, scause
+  li t1, CAUSE_USER_ECALL
   bne t0, t1, fail
 
   # We're done.
