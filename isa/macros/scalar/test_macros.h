@@ -286,7 +286,7 @@ test_ ## testnum: \
 test_ ## testnum: \
     li  TESTNUM, testnum; \
     li  x4, 0; \
-1:  la  x1, result; \
+1:  li  x1, result; \
     TEST_INSERT_NOPS_ ## src1_nops \
     la  x2, base; \
     TEST_INSERT_NOPS_ ## src2_nops \
@@ -304,7 +304,7 @@ test_ ## testnum: \
     li  x4, 0; \
 1:  la  x2, base; \
     TEST_INSERT_NOPS_ ## src1_nops \
-    la  x1, result; \
+    li  x1, result; \
     TEST_INSERT_NOPS_ ## src2_nops \
     store_inst x1, offset(x2); \
     load_inst x3, offset(x2); \
@@ -498,6 +498,14 @@ test_ ## testnum: \
 
 #define TEST_FP_OP1_D( testnum, inst, flags, result, val1 ) \
   TEST_FP_OP_D_INTERNAL( testnum, flags, double result, val1, 0.0, 0.0, \
+                    inst f3, f0; fmv.x.d a0, f3)
+
+#define TEST_FP_OP1_S_DWORD_RESULT( testnum, inst, flags, result, val1 ) \
+  TEST_FP_OP_S_INTERNAL( testnum, flags, dword result, val1, 0.0, 0.0, \
+                    inst f3, f0; fmv.x.s a0, f3)
+
+#define TEST_FP_OP1_D_DWORD_RESULT( testnum, inst, flags, result, val1 ) \
+  TEST_FP_OP_D_INTERNAL( testnum, flags, dword result, val1, 0.0, 0.0, \
                     inst f3, f0; fmv.x.d a0, f3)
 
 #define TEST_FP_OP2_S( testnum, inst, flags, result, val1, val2 ) \
