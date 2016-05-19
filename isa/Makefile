@@ -31,8 +31,8 @@ vpath %.S $(src_dir)
 #------------------------------------------------------------
 # Build assembly tests
 
-%.hex: %
-	(elf2hex 16 8192 $< 2> /dev/null || elf2hex 16 16384 $<) > $@
+#%.hex: %
+#	(elf2hex 16 8192 $< 2> /dev/null || elf2hex 16 16384 $<) > $@
 
 %.dump: %
 	$(RISCV_OBJDUMP) $< > $@
@@ -96,7 +96,9 @@ junk += $(tests) $(tests_dump) $(tests_hex) $(tests_out) $(tests32_out)
 #------------------------------------------------------------
 # Default
 
-all: $(tests_dump) $(tests_hex)
+all: $(tests_dump)
+
+#$(tests_hex)
 
 #------------------------------------------------------------
 # Clean up
