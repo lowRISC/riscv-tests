@@ -11,3 +11,6 @@
 /config.log
 /config.status
 /build
+/tag/rv64tag-p-*
+/tag/rv64tag-v-*
+
