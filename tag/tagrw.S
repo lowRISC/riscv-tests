@@ -67,6 +67,60 @@ RVTEST_CODE_BEGIN
         addi x5, x4, 0          ;\
         )
 
+# bypass tests
+        TEST_CASE(13, x5, 0x1,   \
+        li x4, 0x1              ;\
+.align 6                        ;\
+        tagw x3, x4             ;\
+        tagr x5, x3             ;\
+        )
+
+        TEST_CASE(14, x5, 0x2,   \
+        li x4, 0x2              ;\
+.align 6                        ;\
+        tagw x3, x4             ;\
+        nop                     ;\
+        tagr x4, x3             ;\
+        nop                     ;\
+        addi x5, x4, 0          ;\
+        )
+
+        TEST_CASE(15, x5, 0x3,   \
+        li x4, 0x3              ;\
+.align 6                        ;\
+        tagw x3, x4             ;\
+        nop                     ;\
+        nop                     ;\
+        tagr x4, x3             ;\
+        nop                     ;\
+        nop                     ;\
+        addi x5, x4, 0          ;\
+        )
+
+        TEST_CASE(16, x5, 0x4,   \
+        li x4, 0x4              ;\
+.align 6                        ;\
+        tagw x3, x4             ;\
+        nop                     ;\
+        nop                     ;\
+        nop                     ;\
+        tagr x4, x3             ;\
+        nop                     ;\
+        nop                     ;\
+        nop                     ;\
+        addi x5, x4, 0          ;\
+        )
+
+        TEST_CASE(17, x5, 0x5,   \
+        li x4, 0x1              ;\
+        li x3, 0x5              ;\
+.align 6                        ;\
+        tagw x3, x4             ;\
+        nop                     ;\
+        addi x5, x3, 0          ;\
+        )
+
+
   TEST_PASSFAIL
 
 RVTEST_CODE_END
