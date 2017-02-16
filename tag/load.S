@@ -97,7 +97,7 @@ RVTEST_CODE_BEGIN
         tagr x5, x5             ;\
         )
 
-# temporarily enable store tag propagation
+# disable store tag propagation
         slli x1, x12, 2         ;
         sll  x1, x11, x1        ;
         csrc tagctrl, x1        ;
@@ -108,7 +108,7 @@ RVTEST_CODE_BEGIN
         tagr x5, x1             ;\
         )
 
-# lb, lw, lh has no different in set tag
+# lb, lw, lh has no different in load tag
         li TESTNUM, 9           ;
         li x4, 2                ;
         lb x1, 3(x10)           ;

@@ -4,7 +4,7 @@
 
 src_dir := .
 
-tag_tests = tagrw alu load
+tag_tests = tagrw alu load store
 
 rv64tag_p_tests = $(addprefix rv64tag-p-, $(tag_tests))
 rv64tag_v_tests = $(addprefix rv64tag-v-, $(tag_tests))
