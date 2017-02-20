@@ -9,6 +9,7 @@
 
 #include "riscv_test.h"
 #include "test_macros.h"
+#include "tag_macro.h"
 
 RVTEST_RV64U
 RVTEST_CODE_BEGIN
@@ -69,14 +70,14 @@ RVTEST_CODE_BEGIN
 
 # bypass tests
         TEST_CASE(13, x5, 0x1,   \
-        li x4, 0x1              ;\
+        li   x4, 0x1            ;\
 .align 6                        ;\
         tagw x3, x4             ;\
         tagr x5, x3             ;\
         )
 
         TEST_CASE(14, x5, 0x2,   \
-        li x4, 0x2              ;\
+        li   x4, 0x2            ;\
 .align 6                        ;\
         tagw x3, x4             ;\
         nop                     ;\
@@ -86,7 +87,7 @@ RVTEST_CODE_BEGIN
         )
 
         TEST_CASE(15, x5, 0x3,   \
-        li x4, 0x3              ;\
+        li   x4, 0x3            ;\
 .align 6                        ;\
         tagw x3, x4             ;\
         nop                     ;\
@@ -98,7 +99,7 @@ RVTEST_CODE_BEGIN
         )
 
         TEST_CASE(16, x5, 0x4,   \
-        li x4, 0x4              ;\
+        li   x4, 0x4            ;\
 .align 6                        ;\
         tagw x3, x4             ;\
         nop                     ;\
@@ -112,8 +113,8 @@ RVTEST_CODE_BEGIN
         )
 
         TEST_CASE(17, x5, 0x5,   \
-        li x4, 0x1              ;\
-        li x3, 0x5              ;\
+        li   x4, 0x1            ;\
+        li   x3, 0x5            ;\
 .align 6                        ;\
         tagw x3, x4             ;\
         nop                     ;\
