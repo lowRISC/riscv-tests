@@ -109,6 +109,23 @@ RVTEST_CODE_BEGIN
         tagr x5, x1             ;
         bne  x4, x5, fail       ;
 
+# Set a partial load tag propagation mask
+        li   x1, 0x9
+        slli x1, x1, TSHIM_LOAD_PROP
+        csrw tagctrl, x1
+        li   x1, TMASK_STORE_PROP
+        csrs tagctrl, x1
+
+# Ensure the propagation mask works
+        TEST_CASE( 12, x5, 9,    \
+        li   x1, 0xf            ;\
+        tagw x1, x1             ;\
+        sd   x1, 0(x10)         ;\
+        ld   x5, 0(x10)         ;\
+        tagr x5, x5             ;\
+        )
+
+
 
   TEST_PASSFAIL
 
