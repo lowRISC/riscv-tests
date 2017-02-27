@@ -121,6 +121,14 @@ RVTEST_CODE_BEGIN
         addi x5, x3, 0          ;\
         )
 
+# Set tag wider than TAG_BITS
+        TEST_CASE( 18, x5, 0xf,   \
+        li   x1, 0xff           ;\
+        tagw x1, x1             ;\
+        tagr x5, x1             ;\
+        )
+
+
 
   TEST_PASSFAIL
 

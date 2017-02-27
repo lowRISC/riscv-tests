@@ -34,7 +34,7 @@ RVTEST_CODE_BEGIN
         TEST_CASE( 2, x5, 1,     \
         li   x1, 1              ;\
         tagw x1, x1             ;\
-        sb   x1, 0(x10)         ;\
+        sb   x1, 1(x10)         ;\
         nop                     ;\
         ld   x5, 0(x10)         ;\
         tagr x5, x5             ;\
@@ -43,7 +43,7 @@ RVTEST_CODE_BEGIN
         TEST_CASE( 3, x5, 2,     \
         li   x1, 2              ;\
         tagw x1, x1             ;\
-        sh   x1, 0(x10)         ;\
+        sh   x1, 2(x10)         ;\
         nop                     ;\
         ld   x5, 0(x10)         ;\
         tagr x5, x5             ;\
@@ -52,7 +52,7 @@ RVTEST_CODE_BEGIN
         TEST_CASE( 4, x5, 3,     \
         li   x1, 3              ;\
         tagw x1, x1             ;\
-        sw   x1, 0(x10)         ;\
+        sw   x1, 4(x10)         ;\
         nop                     ;\
         ld   x5, 0(x10)         ;\
         tagr x5, x5             ;\
@@ -63,6 +63,22 @@ RVTEST_CODE_BEGIN
         tagw x1, x1             ;\
         sd   x1, 0(x10)         ;\
         nop                     ;\
+        ld   x5, 0(x10)         ;\
+        tagr x5, x5             ;\
+        )
+
+# Set a partial store tag propagation mask
+        li   x1, 0x9
+        slli x1, x1, TSHIM_STORE_PROP
+        csrw tagctrl, x1
+        li   x1, TMASK_LOAD_PROP
+        csrs tagctrl, x1
+
+# Ensure the propagation mask works
+        TEST_CASE( 6, x5, 9,     \
+        li   x1, 0xf            ;\
+        tagw x1, x1             ;\
+        sd   x1, 0(x10)         ;\
         ld   x5, 0(x10)         ;\
         tagr x5, x5             ;\
         )

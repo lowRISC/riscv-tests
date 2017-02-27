@@ -99,6 +99,73 @@ RVTEST_CODE_BEGIN
         tagr x5, x3             ;\
         )
 
+# exhaustive check of "alu"-class instructions. TINST_CHECK sets up an
+# environment so x2 and x3 can be used as register inputs to the ALU
+# operation, and x2 should be the desetination register
+
+# enable alu propagation
+        li   x1, 0xf            ;
+        slli x1, x1, TSHIM_ALU  ;
+        csrw tagctrl, x1        ;
+
+#define TINST_CHECK(tnum, expected, instr_line...) \
+        TEST_CASE(tnum, x5, expected, \
+        li x2, 0x3;\
+        li x3, 0xc;\
+        tagw x2, x2;\
+        tagw x3, x3;\
+        instr_line;\
+        tagr x5, x4;\
+        )
+
+# reg-imm
+        TINST_CHECK(13, 0x3, addi x4, x2, 11);
+        TINST_CHECK(14, 0x3, addiw x4, x2, 11);
+        TINST_CHECK(15, 0x3, andi x4, x2, 11);
+        TINST_CHECK(16, 0x3, ori x4, x2, 11);
+        TINST_CHECK(17, 0x3, slli x4, x2, 11);
+        TINST_CHECK(18, 0x3, slliw x4, x2, 11);
+        TINST_CHECK(19, 0x3, slti x4, x2, 11);
+        TINST_CHECK(20, 0x3, sltiu x4, x2, 11);
+        TINST_CHECK(21, 0x3, srai x4, x2, 11);
+        TINST_CHECK(22, 0x3, sraiw x4, x2, 11);
+        TINST_CHECK(23, 0x3, srli x4, x2, 11);
+        TINST_CHECK(24, 0x3, srliw x4, x2, 11);
+
+# reg-reg
+        TINST_CHECK(25, 0xf, add x4, x2, x3);
+        TINST_CHECK(26, 0xf, addw x4, x2, x3);
+        TINST_CHECK(27, 0xf, and x4, x2, x3);
+        TINST_CHECK(28, 0xf, div x4, x2, x3);
+        TINST_CHECK(29, 0xf, divu x4, x2, x3);
+        TINST_CHECK(30, 0xf, divuw x4, x2, x3);
+        TINST_CHECK(31, 0xf, divw x4, x2, x3);
+        TINST_CHECK(32, 0xf, mul x4, x2, x3);
+        TINST_CHECK(33, 0xf, mulh x4, x2, x3);
+        TINST_CHECK(34, 0xf, mulhsu x4, x2, x3);
+        TINST_CHECK(35, 0xf, mulhu x4, x2, x3);
+        TINST_CHECK(36, 0xf, mulw x4, x2, x3);
+        TINST_CHECK(37, 0xf, or x4, x2, x3);
+        TINST_CHECK(38, 0xf, rem x4, x2, x3);
+        TINST_CHECK(39, 0xf, remu x4, x2, x3);
+        TINST_CHECK(40, 0xf, remuw x4, x2, x3);
+        TINST_CHECK(41, 0xf, remw x4, x2, x3);
+        TINST_CHECK(42, 0xf, sll x4, x2, x3);
+        TINST_CHECK(43, 0xf, sllw x4, x2, x3);
+        TINST_CHECK(44, 0xf, slt x4, x2, x3);
+        TINST_CHECK(45, 0xf, sltu x4, x2, x3);
+        TINST_CHECK(46, 0xf, sra x4, x2, x3);
+        TINST_CHECK(47, 0xf, sraw x4, x2, x3);
+        TINST_CHECK(48, 0xf, srl x4, x2, x3);
+        TINST_CHECK(49, 0xf, srlw x4, x2, x3);
+        TINST_CHECK(50, 0xf, sub x4, x2, x3);
+        TINST_CHECK(51, 0xf, subw x4, x2, x3);
+        TINST_CHECK(52, 0xf, xor x4, x2, x3);
+
+# imm
+        TINST_CHECK(53, 0x0, lui x4, 513);
+        TINST_CHECK(54, 0x0, auipc x4, 513);
+
   TEST_PASSFAIL
 
 RVTEST_CODE_END

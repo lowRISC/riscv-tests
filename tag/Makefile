@@ -9,6 +9,7 @@ tag_si_tests = load store pctag
 
 rv64tag_p_tests = $(addprefix rv64tag-p-, $(tag_ui_tests) $(tag_si_tests))
 rv64tag_v_tests = $(addprefix rv64tag-v-, $(tag_ui_tests))
+spike_tests += $(rv64tag_p_tests) $(rv64tag_v_tests)
 
 default: all
 
@@ -66,7 +67,7 @@ tests_out = $(addsuffix .out, $(spike_tests))
 
 run: $(tests_out)
 	echo; perl -ne 'print "  [$$1] $$ARGV \t$$2\n" if /\*{3}(.{8})\*{3}(.*)/' \
-	       $(tests_out) $(tests32_out); echo;
+	       $(tests_out); echo;
 
 junk += $(tests) $(tests_dump) $(tests_hex) $(tests_out)
 
