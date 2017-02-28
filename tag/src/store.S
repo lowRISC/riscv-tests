@@ -7,21 +7,12 @@
 # Test tagged store.
 #
 
+#include "tag_macro.h"
 #include "riscv_test.h"
 #include "test_macros.h"
-#include "tag_macro.h"
 
-RVTEST_RV64S
+RVTEST_RV64U
 RVTEST_CODE_BEGIN
-
-#ifdef __MACHINE_MODE
-  #define sscratch mscratch
-  #define sstatus mstatus
-  #define scause mcause
-  #define sepc mepc
-  #define sret mret
-  #define stvec_handler mtvec_handler
-#endif
 
         la   x10, tdat          ;
         

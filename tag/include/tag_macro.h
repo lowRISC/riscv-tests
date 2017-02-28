@@ -11,6 +11,8 @@
 #ifndef TAG_MACRO_H
 #define TAG_MACRO_H
 
+#define __TAG_MODE
+
 #define TAG_BITS                4
 #define TAG_INST_BITS           2
 
@@ -37,6 +39,5 @@
 #define TSHIM_JMP_CHECK         28
 #define TSHIM_JMP_PROP          32
 #define TSHIM_FETCH_CHECK       36
-
 
 #endif

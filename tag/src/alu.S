@@ -7,9 +7,9 @@
 # Test alu tag propagation.
 #
 
+#include "tag_macro.h"
 #include "riscv_test.h"
 #include "test_macros.h"
-#include "tag_macro.h"
 
 RVTEST_RV64U
 RVTEST_CODE_BEGIN

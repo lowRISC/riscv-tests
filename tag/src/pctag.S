@@ -7,23 +7,12 @@
 # Test pc tag.
 #
 
+#include "tag_macro.h"
 #include "riscv_test.h"
 #include "test_macros.h"
-#include "tag_macro.h"
 
-RVTEST_RV64S
+RVTEST_RV64U
 RVTEST_CODE_BEGIN
-
-#ifdef __MACHINE_MODE
-  #define sscratch mscratch
-  #define sstatus mstatus
-  #define scause mcause
-  #define sepc mepc
-  #define sret mret
-  #define stvec_handler mtvec_handler
-  #undef SSTATUS_SPP
-  #define SSTATUS_SPP MSTATUS_MPP
-#endif
 
 # normal branch
         li   TESTNUM, 2         ;
@@ -32,22 +21,16 @@ RVTEST_CODE_BEGIN
         j    fail               ;
 1:
 
-# jump to user land to test exception
-        li   t0, SSTATUS_SPP
-        csrc sstatus, t0
-        la   t0, 1f
-        csrw sepc, t0
-        sret
-1:
+# enable direct control flow target
+        slli x3, x1, TSHIM_CFLOW_DIR_TGT ;
+        li   x2, TMASK_STORE_PROP;
+        or   x3, x3, x2         ;
+        li   x2, TMASK_LOAD_PROP;
+        or   x3, x3, x2         ;
+        csrw tagctrl, x3        ;
 
-# branch with pc tag check
+# branch with pc tag check ok
         li   TESTNUM, 3         ;
-        slli x2, x1, TSHIM_CFLOW_DIR_TGT ;
-        csrw tagctrl, x2        ;
-        li   x2, TMASK_STORE_PROP ;
-        csrs tagctrl, x2        ;
-        li   x2, TMASK_LOAD_PROP ;
-        csrs tagctrl, x2        ;
         la   x10, 1f            ;
         lw   x9, 0(x10)         ;
         tagw x9, x1             ;
@@ -56,17 +39,37 @@ RVTEST_CODE_BEGIN
         bne  x1, x0, 1f         ;
         j    fail               ;
 .align 6
-1:      csrw tagctrl, x0        ;
+1:
+
+# branch with pc tag check fail
+        li   TESTNUM, 4         ;
+        bne  x1, x0, 1f         ;
+        j    fail               ;
+.align 3
+1:
+
+# branch with pc tag check fail
+
 
   TEST_PASSFAIL
 
-stvec_handler:
-        li   x15, CAUSE_TAG_CHECK_FAIL
-        csrr x16, scause
-        beq  x15, x16, fail
-        li   x15, CAUSE_USER_ECALL
-        bne  x15, x16, fail
-1:      RVTEST_PASS
+mtvec_handler:
+        li   x16, 4             ;
+        bne  TESTNUM, x16, 1f   ;
+# test case 4
+        li   x16, CAUSE_TAG_CHECK_FAIL ;
+        csrr x17, mcause        ;
+        bne  x16, x17, fail     ;
+        csrr x16, mepc          ;
+        tagr x17, x16           ;
+        bne  x17, x0, fail      ;
+        lw   x17, 0(x16)        ;
+        tagw x17, x1            ;
+        sw   x17, 0(x16)        ;
+        fence.i                 ;
+        EXIT_TAG_MACHINE        ;
+        mret                    ;
+1:      j fail
 
 RVTEST_CODE_END
 
