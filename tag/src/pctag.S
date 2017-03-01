@@ -111,9 +111,8 @@ RVTEST_CODE_BEGIN
 1:
 
 
-# jump with pc tag check fail, cache miss
+# jump with pc tag check fail
         li   TESTNUM, 10        ;
-.align 6
         j    1f                 ;
 .align 3
 1:      j    fail               ;
@@ -136,6 +135,56 @@ RVTEST_CODE_BEGIN
         nop                     ;
 1:
 
+# jalr not set tag (not really needed)
+        li   TESTNUM, 12        ;
+        la   x3, 1b             ;
+        jalr x0, x3, 16         ;
+
+# disable direct control flow target
+        slli x3, x1, TSHIM_CFLOW_DIR_TGT ;
+        csrc tagctrl, x3        ;
+        slli x3, x1, TSHIM_CFLOW_INDIR_TGT ;
+        csrs tagctrl, x3        ;
+
+# jalr with pc tag check ok
+        li   TESTNUM, 13        ;
+        la   x10, 1f            ;
+        lw   x9, 0(x10)         ;
+        tagw x9, x1             ;
+        sw   x9, 0(x10)         ;
+        la   x3, 1f             ;
+        fence.i                 ;
+        jalr x0, x3, 0          ;
+.align 3
+1:
+
+
+# jalr with pc tag check fail
+        li   TESTNUM, 14        ;
+        la   x3, 1f             ;
+        jalr x0, x3, 0          ;
+.align 3
+1:      j    fail               ;
+
+# jalr with pc tag check ok, force no take_pc
+        li   TESTNUM, 15        ;
+        la   x10, 1f            ;
+        lw   x9, 0(x10)         ;
+        tagw x9, x1             ;
+        sw   x9, 0(x10)         ;
+        lw   x9, 16(x10)        ;
+        tagw x9, x1             ;
+        sw   x9, 16(x10)        ;
+        li   x2, 16             ;
+        la   x3, 1f             ;
+        fence.i                 ;
+.align 3
+1:      addi x2, x2, -1         ;
+        beq  x2, x0, 1f         ;
+        jalr x0, x3, 0          ;
+        nop                     ;
+1:
+
 
   TEST_PASSFAIL
 
@@ -146,7 +195,9 @@ mtvec_handler:
         beq  TESTNUM, x16, 1f   ;
         li   x16, 10            ;
         beq  TESTNUM, x16, 1f   ;
-        j    2f                 ;
+        li   x16, 14            ;
+        beq  TESTNUM, x16, 1f   ;
+        j    fail               ;
 # test case 5/6
 1:      li   x16, CAUSE_TAG_CHECK_FAIL ;
         csrr x17, mcause        ;
@@ -158,7 +209,6 @@ mtvec_handler:
         csrw mepc, x16          ;
         EXIT_TAG_MACHINE        ;
         mret                    ;
-2:      j fail
 
 RVTEST_CODE_END
 
