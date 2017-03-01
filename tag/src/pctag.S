@@ -176,17 +176,29 @@ RVTEST_CODE_BEGIN
         tagw x9, x1             ;
         sw   x9, 16(x10)        ;
         li   x2, 16             ;
-        la   x3, 1f             ;
         fence.i                 ;
 .align 3
 1:      addi x2, x2, -1         ;
         beq  x2, x0, 1f         ;
-        jalr x0, x3, 0          ;
+        jalr x0, x10, 0         ;
         nop                     ;
 1:
 
+# make sure tag check fail will not override normal exceptions
+        li   TESTNUM, 16        ;
+        la   x10, 1f            ;
+        lw   x15, 0(x10)        ;
+        tagw x15, x1            ;
+        sw   x0, 0(x10)         ;
+        fence.i                 ;
+        jalr x0, x10, 0         ;
+.align 3
+1:      nop                     ;
+        j    fail               ;
 
-  TEST_PASSFAIL
+
+        csrw tagctrl, x0        ;
+        TEST_PASSFAIL
 
 mtvec_handler:
         li   x16, 5             ;
@@ -197,7 +209,7 @@ mtvec_handler:
         beq  TESTNUM, x16, 1f   ;
         li   x16, 14            ;
         beq  TESTNUM, x16, 1f   ;
-        j    fail               ;
+        j    2f                 ;
 # test case 5/6
 1:      li   x16, CAUSE_TAG_CHECK_FAIL ;
         csrr x17, mcause        ;
@@ -208,6 +220,34 @@ mtvec_handler:
         addi x16, x16, 4        ;
         csrw mepc, x16          ;
         EXIT_TAG_MACHINE        ;
+        mret                    ;
+# test case 16
+2:      li   x16, 16            ;
+        beq  TESTNUM, x16, 1f   ;
+        j    fail               ;
+1:      csrr x17, mcause        ;
+        li   x16, CAUSE_ILLEGAL_INSTRUCTION ;
+        bne  x16, x17, 1f       ;
+        csrr x17, mepc          ;
+        lw   x16, 0(x17)        ;
+        bne  x16, x0, fail      ;
+        tagr x16, x16           ;
+        bne  x16, x0, fail      ;
+        mv   x16, x15           ;
+        tagw x16, x0            ;
+        sw   x16, 0(x17)        ;
+        EXIT_TAG_MACHINE        ;
+        fence.i                 ;
+        mret                    ;
+1:      li   x16, CAUSE_TAG_CHECK_FAIL ;
+        bne  x16, x17, fail     ;
+        csrr x17, mepc          ;
+        mv   x16, x15           ;
+        tagw x15, x0            ;
+        sw   x15, 4(x17)        ;
+        sw   x16, 0(x17)        ;
+        EXIT_TAG_MACHINE        ;
+        fence.i                 ;
         mret                    ;
 
 RVTEST_CODE_END
