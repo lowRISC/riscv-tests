@@ -36,31 +36,6 @@ RVTEST_CODE_BEGIN
   tagw x5, x6
   ld   x5, 0(x5)
 
-  # Attempts to load from a tagged tdat should trigger an exception
-  li   TESTNUM, 4
-  li   x5, 0xf00d
-  li   x6, 0x9
-  tagw x5, x6
-  sd   x5, 0(x10)
-  ld   x0, 0(x10)
-  fence
-  j    fail
-
-  li   TESTNUM, 5
-  lw   x0, 0(x10)
-  fence
-  j    fail
-
-  li   TESTNUM, 6
-  lh   x0, 0(x10)
-  fence
-  j    fail
-
-  li   TESTNUM, 7
-  lb   x0, 0(x10)
-  fence
-  j    fail
-
   # Loading from a location with a tag that doesn't match the 'loadcheck' mask
   # shouldn't cause an exception
   li   TESTNUM, 8
@@ -70,20 +45,75 @@ RVTEST_CODE_BEGIN
   sd   x5, 0(x10)
   ld   x5, 0(x10)
 
+  # All tests from this point on (other than test 8) are expected to trigger a tag exception
+
+  # Attempts to load from a tagged tdat should trigger an exception
+  li   TESTNUM, 4
+  li   x5, 0xf00d
+  li   x6, 0x9
+  tagw x5, x6
+  sd   x5, 0(x10)
+  tagw x5, x0
+  li   x5, 0xd00d
+  ld   x5, 0(x10)
+  fence
+  j    fail
+
+  li   TESTNUM, 5
+  lw   x5, 0(x10)
+  fence
+  j    fail
+
+  li   TESTNUM, 6
+  lh   x5, 0(x10)
+  fence
+  j    fail
+
+  li   TESTNUM, 7
+  lb   x5, 0(x10)
+  fence
+  j    fail
+
+  # Loads that failed the tag check should leave x5 unmodified
+  li   TESTNUM, 8
+  li   x6, 0xd00d
+  bne  x5, x6, fail
+
+  # Exceptions should be triggered regardless of whether load propagation is
+  # enabled
+  li   x1, TMASK_LOAD_PROP
+  csrc tagctrl, x1
+
+  li   TESTNUM, 9
+  lw   x0, 0(x10)
+  fence
+  j    fail
+
+  li   TESTNUM, 10
+  lw   x0, 0(x10)
+  fence
+  j    fail
+
+  li   TESTNUM, 11
+  lh   x0, 0(x10)
+  fence
+  j    fail
+
+  li   TESTNUM, 12
+  lb   x0, 0(x10)
+  fence
+  j    fail
+
 
   TEST_PASSFAIL
 
 # Trap handler: if the excpetion was a tag exception that was expected for
 # this test number, then jump over the next instruction
 mtvec_handler:
+  li   x16, 8
+  beq  TESTNUM, x16, fail
   li   x16, 4
-  beq  TESTNUM, x16, expected_tag_xcpt
-  li   x16, 5
-  beq  TESTNUM, x16, expected_tag_xcpt
-  li   x16, 6
-  beq  TESTNUM, x16, expected_tag_xcpt
-  li   x16, 7
-  beq  TESTNUM, x16, expected_tag_xcpt
+  bge  TESTNUM, x16, expected_tag_xcpt
   j    fail
 
 expected_tag_xcpt:
