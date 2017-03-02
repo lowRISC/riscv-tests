@@ -14,10 +14,87 @@
 RVTEST_RV64U
 RVTEST_CODE_BEGIN
 
+  # Test setup
+  la   x10, tdat
+  li   x1, TMASK_LOAD_PROP
+  csrw tagctrl, x1
+  li   x1, TMASK_STORE_PROP
+  csrs tagctrl, x1
+  li   x1, 0x9
+  slli x1, x1, TSHIM_LOAD_CHECK
+  csrs tagctrl, x1
 
+  # Loads should be unaffected when the destination address has no tags
+  li   TESTNUM, 2
+  ld   x0, 0(x10)
+
+  # The load check should be performed based on the tag of the target memory
+  # location rather than the tag of register used for the address
+  li   TESTNUM, 3
+  addi x5, x10, 0
+  li   x6, 0xf
+  tagw x5, x6
+  ld   x5, 0(x5)
+
+  # Attempts to load from a tagged tdat should trigger an exception
+  li   TESTNUM, 4
+  li   x5, 0xf00d
+  li   x6, 0x9
+  tagw x5, x6
+  sd   x5, 0(x10)
+  ld   x0, 0(x10)
+  fence
+  j    fail
+
+  li   TESTNUM, 5
+  lw   x0, 0(x10)
+  fence
+  j    fail
+
+  li   TESTNUM, 6
+  lh   x0, 0(x10)
+  fence
+  j    fail
+
+  li   TESTNUM, 7
+  lb   x0, 0(x10)
+  fence
+  j    fail
+
+  # Loading from a location with a tag that doesn't match the 'loadcheck' mask
+  # shouldn't cause an exception
+  li   TESTNUM, 8
+  la   x10, tdat2
+  li   x5, 0x6
+  tagw x5, x5
+  sd   x5, 0(x10)
+  ld   x5, 0(x10)
 
 
   TEST_PASSFAIL
+
+# Trap handler: if the excpetion was a tag exception that was expected for
+# this test number, then jump over the next instruction
+mtvec_handler:
+  li   x16, 4
+  beq  TESTNUM, x16, expected_tag_xcpt
+  li   x16, 5
+  beq  TESTNUM, x16, expected_tag_xcpt
+  li   x16, 6
+  beq  TESTNUM, x16, expected_tag_xcpt
+  li   x16, 7
+  beq  TESTNUM, x16, expected_tag_xcpt
+  j    fail
+
+expected_tag_xcpt:
+  li   x16, CAUSE_TAG_CHECK_FAIL
+  csrr x17, mcause
+  bne  x16, x17, fail
+  csrr x16, mepc
+  addi x16, x16, 12
+  csrw mepc, x16
+  EXIT_TAG_MACHINE
+  mret
 
 RVTEST_CODE_END
 
@@ -27,13 +104,8 @@ RVTEST_DATA_BEGIN
 
   TEST_DATA
 
-tdat0:  .dword 0x0000ffff0f0f0f0f
-.align 6
-tdat1:  .dword 0x000ffff0f0f0f0f1
-.align 6
-tdat2:  .dword 0x00ffff0f0f0f0f12
-.align 6
-tdat3:  .dword 0x0ffff0f0f0f0f123
+tdat:   .dword 0x0000ffff0f0f0f0f
+tdat2:  .dword 0x000ffff0f0f0f0f1
 
 
 RVTEST_DATA_END
