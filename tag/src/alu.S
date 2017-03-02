@@ -29,7 +29,7 @@ RVTEST_CODE_BEGIN
 
 # enable alu propagation with 0x1
         li   x1, 0x1            ;
-        slli x1, x1, TSHIM_ALU  ;
+        slli x1, x1, TSHIM_ALU_PROP ;
         csrw tagctrl, x1        ;
 
 # propagate zero tag
@@ -47,7 +47,7 @@ RVTEST_CODE_BEGIN
 
 # enable alu propagation with 0x2
         li   x2, 0x2            ;
-        slli x2, x2, TSHIM_ALU  ;
+        slli x2, x2, TSHIM_ALU_PROP ;
         csrw tagctrl, x2        ;
 
 # propagate 0x2 tag
@@ -59,7 +59,7 @@ RVTEST_CODE_BEGIN
 
 # enable alu progagation with 0x3
         li   x3, 0x3            ;
-        slli x3, x3, TSHIM_ALU  ;
+        slli x3, x3, TSHIM_ALU_PROP ;
         csrw tagctrl, x3        ;
 
 # propagate 0x3 tag
@@ -105,7 +105,7 @@ RVTEST_CODE_BEGIN
 
 # enable alu propagation
         li   x1, 0xf            ;
-        slli x1, x1, TSHIM_ALU  ;
+        slli x1, x1, TSHIM_ALU_PROP ;
         csrw tagctrl, x1        ;
 
 #define TINST_CHECK(tnum, expected, instr_line...) \
