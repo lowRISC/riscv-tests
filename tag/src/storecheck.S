@@ -33,41 +33,56 @@ RVTEST_CODE_BEGIN
   li   TESTNUM, 3
   li   x5, 0xf
   tagw x5, x5
-  sd   x5, 0(x10)
+  sd   x5, 64(x10)
+
+  # make sure fence.i is safe to stall pipeline until tag check is resolved
+  li   TESTNUM, 4
+  sd   x0, 64(x10)
+  fence.i
+  li   x10, 0
+  beq  x10, x0, fail
+
+  # set up tag check for different store width
+  sd   x5, 128(x10)
+  fence.i
 
   # Attempts to store to tdat should now trigger an exception
-  # NOTE: fences will become unnecessary once the hardware generates precise
-  # tag exceptions
-  li   TESTNUM, 4
-  sd   x0, 0(x10)
-  fence.i
-  j    fail
-
   li   TESTNUM, 5
-  sw   x0, 0(x10)
-  fence.i
-  j    fail
+  sd   x0, 128(x10)
+  li   x10, 0
+  nop
+  beq  x10, x0,  fail
 
   li   TESTNUM, 6
-  sh   x0, 0(x10)
-  fence.i
-  j    fail
+  sw   x0, 128(x10)
+  li   x10, 0
+  nop
+  beq  x10, x0,  fail
 
   li   TESTNUM, 7
-  sb   x0, 0(x10)
-  fence.i
-  j    fail
+  sh   x0, 128(x10)
+  li   x10, 0
+  nop
+  beq  x10, x0,  fail
+
+  li   TESTNUM, 8
+  sb   x0, 128(x10)
+  li   x10, 0
+  nop
+  beq  x10, x0,  fail
 
   # The failed attempts to write to the tagged location should not have changed
   # the memory contents
-  li   TESTNUM, 8
-  ld   x5, 0(x10)
+  li   TESTNUM, 9
   li   x29, 0xf
+  ld   x5, 64(x10)
+  bne  x5, x29, fail
+  ld   x5, 128(x10)
   bne  x5, x29, fail
 
   # Storing to a location with a tag that doesn't match the 'storecheck' mask
   # shouldn't cause an exception
-  li   TESTNUM, 9
+  li   TESTNUM, 10
   la   x10, tdat2
   li   x5, 0x6
   tagw x5, x5
@@ -90,6 +105,8 @@ mtvec_handler:
   beq  TESTNUM, x16, expected_tag_xcpt
   li   x16, 7
   beq  TESTNUM, x16, expected_tag_xcpt
+  li   x16, 8
+  beq  TESTNUM, x16, expected_tag_xcpt
   j    fail
 
 expected_tag_xcpt:
@@ -110,6 +127,10 @@ RVTEST_DATA_BEGIN
   TEST_DATA
 
   tdat:  .dword 0x0000ffff0f0f0f0f
+.align 6
+         .dword 0x0000000000000000
+.align 6
+         .dword 0x0000000000000000
   tdat2: .dword 0x0000ffff0f0f0f0f
 
 RVTEST_DATA_END
