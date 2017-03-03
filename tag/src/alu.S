@@ -40,6 +40,7 @@ RVTEST_CODE_BEGIN
 
 # propagate 0x1 tag
         TEST_CASE( 5, x5, 0x1,   \
+        li   x1, 0x1            ;\
         tagw x1, x1             ;\
         add  x1, x0, x1         ;\
         tagr x5, x1             ;\
@@ -52,6 +53,7 @@ RVTEST_CODE_BEGIN
 
 # propagate 0x2 tag
         TEST_CASE( 6, x5, 0x2,   \
+        li   x2, 0x2            ;\
         tagw x2, x2             ;\
         add  x2, x1, x2         ;\
         tagr x5, x2             ;\
@@ -64,7 +66,8 @@ RVTEST_CODE_BEGIN
 
 # propagate 0x3 tag
         TEST_CASE( 7, x5, 0x3,   \
-        and x3, x1, x2          ;\
+        li   x3, 0x3            ;\
+        and  x3, x1, x2         ;\
         tagr x5, x3             ;\
         )
 
