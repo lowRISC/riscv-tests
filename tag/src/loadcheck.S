@@ -46,6 +46,8 @@ RVTEST_CODE_BEGIN
   ld   x5, 0(x10)
 
   # All tests from this point on (other than test 8) are expected to trigger a tag exception
+  # NOTE: fences will become unnecessary once the hardware generates precise
+  # tag exceptions
 
   # Attempts to load from a tagged tdat should trigger an exception
   li   TESTNUM, 4
@@ -56,22 +58,22 @@ RVTEST_CODE_BEGIN
   tagw x5, x0
   li   x5, 0xd00d
   ld   x5, 0(x10)
-  fence
+  fence.i
   j    fail
 
   li   TESTNUM, 5
   lw   x5, 0(x10)
-  fence
+  fence.i
   j    fail
 
   li   TESTNUM, 6
   lh   x5, 0(x10)
-  fence
+  fence.i
   j    fail
 
   li   TESTNUM, 7
   lb   x5, 0(x10)
-  fence
+  fence.i
   j    fail
 
   # Loads that failed the tag check should leave x5 unmodified
@@ -86,28 +88,28 @@ RVTEST_CODE_BEGIN
 
   li   TESTNUM, 9
   lw   x0, 0(x10)
-  fence
+  fence.i
   j    fail
 
   li   TESTNUM, 10
   lw   x0, 0(x10)
-  fence
+  fence.i
   j    fail
 
   li   TESTNUM, 11
   lh   x0, 0(x10)
-  fence
+  fence.i
   j    fail
 
   li   TESTNUM, 12
   lb   x0, 0(x10)
-  fence
+  fence.i
   j    fail
 
 
   TEST_PASSFAIL
 
-# Trap handler: if the excpetion was a tag exception that was expected for
+# Trap handler: if the exception was a tag exception that was expected for
 # this test number, then jump over the next instruction
 mtvec_handler:
   li   x16, 8

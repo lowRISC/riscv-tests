@@ -36,24 +36,26 @@ RVTEST_CODE_BEGIN
   sd   x5, 0(x10)
 
   # Attempts to store to tdat should now trigger an exception
+  # NOTE: fences will become unnecessary once the hardware generates precise
+  # tag exceptions
   li   TESTNUM, 4
   sd   x0, 0(x10)
-  fence
+  fence.i
   j    fail
 
   li   TESTNUM, 5
   sw   x0, 0(x10)
-  fence
+  fence.i
   j    fail
 
   li   TESTNUM, 6
   sh   x0, 0(x10)
-  fence
+  fence.i
   j    fail
 
   li   TESTNUM, 7
   sb   x0, 0(x10)
-  fence
+  fence.i
   j    fail
 
   # The failed attempts to write to the tagged location should not have changed
