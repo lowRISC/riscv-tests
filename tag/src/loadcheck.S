@@ -38,7 +38,7 @@ RVTEST_CODE_BEGIN
 
   # Loading from a location with a tag that doesn't match the 'loadcheck' mask
   # shouldn't cause an exception
-  li   TESTNUM, 8
+  li   TESTNUM, 4
   la   x10, tdat2
   li   x5, 0x6
   tagw x5, x5
@@ -49,36 +49,48 @@ RVTEST_CODE_BEGIN
   # NOTE: fences will become unnecessary once the hardware generates precise
   # tag exceptions
 
-  # Attempts to load from a tagged tdat should trigger an exception
-  li   TESTNUM, 4
-  li   x5, 0xf00d
+  # enforce a cache miss to ensure fence.i is strong enough
+  li   TESTNUM, 5
+  li   x5, 0x0f
   li   x6, 0x9
   tagw x5, x6
-  sd   x5, 0(x10)
+  li   x6, 0xd00d
+.align 6
+  sd   x5, 64(x10)
   tagw x5, x0
-  li   x5, 0xd00d
-  ld   x5, 0(x10)
+  mv   x5, x6
+  ld   x5, 64(x10)
   fence.i
-  j    fail
+  li   x5, 0x0f
+  bne  x5, x6, fail
 
-  li   TESTNUM, 5
-  lw   x5, 0(x10)
-  fence.i
-  j    fail
-
+  # Attempts to load from a tagged tdat should trigger an immediate exception
   li   TESTNUM, 6
-  lh   x5, 0(x10)
-  fence.i
-  j    fail
+  ld   x5, 64(x10)
+  li   x5, 0x0f
+  nop
+  bne  x5, x6, fail
 
   li   TESTNUM, 7
-  lb   x5, 0(x10)
-  fence.i
-  j    fail
+  lw   x5, 64(x10)
+  li   x5, 0x0f
+  nop
+  bne  x5, x6, fail
+
+  li   TESTNUM, 8
+  lh   x5, 64(x10)
+  li   x5, 0x0f
+  nop
+  bne  x5, x6, fail
+
+  li   TESTNUM, 9
+  lb   x5, 64(x10)
+  li   x5, 0x0f
+  nop
+  bne  x5, x6, fail
 
   # Loads that failed the tag check should leave x5 unmodified
-  li   TESTNUM, 8
-  li   x6, 0xd00d
+  li   TESTNUM, 10
   bne  x5, x6, fail
 
   # Exceptions should be triggered regardless of whether load propagation is
@@ -86,25 +98,29 @@ RVTEST_CODE_BEGIN
   li   x1, TMASK_LOAD_PROP
   csrc tagctrl, x1
 
-  li   TESTNUM, 9
-  lw   x0, 0(x10)
-  fence.i
-  j    fail
-
-  li   TESTNUM, 10
-  lw   x0, 0(x10)
-  fence.i
-  j    fail
-
   li   TESTNUM, 11
-  lh   x0, 0(x10)
-  fence.i
-  j    fail
+  lw   x0, 64(x10)
+  li   x5, 0x0f
+  nop
+  bne  x5, x6, fail
 
   li   TESTNUM, 12
-  lb   x0, 0(x10)
-  fence.i
-  j    fail
+  lw   x0, 64(x10)
+  li   x5, 0x0f
+  nop
+  bne  x5, x6, fail
+
+  li   TESTNUM, 13
+  lh   x0, 64(x10)
+  li   x5, 0x0f
+  nop
+  bne  x5, x6, fail
+
+  li   TESTNUM, 14
+  lb   x0, 64(x10)
+  li   x5, 0x0f
+  nop
+  bne  x5, x6, fail
 
 
   TEST_PASSFAIL
@@ -137,6 +153,8 @@ RVTEST_DATA_BEGIN
   TEST_DATA
 
 tdat:   .dword 0x0000ffff0f0f0f0f
+.align 6
+        .dword 0x0000000000000000
 tdat2:  .dword 0x000ffff0f0f0f0f1
 
 
