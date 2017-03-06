@@ -20,8 +20,8 @@ RVTEST_CODE_BEGIN
   csrw tagctrl, x1
 
   # Exceptions should be raised even while propagation is disabled
-  li   x2, 0xf
-  li   x3, 0xf
+  li   x2, 0x1
+  li   x3, 0x1
   tagw x2, x2
   tagw x3, x3
 
@@ -81,8 +81,8 @@ RVTEST_CODE_BEGIN
   li   x1, TMASK_ALU_PROP
   csrs tagctrl, x1
   li   TESTNUM, 42
-  li   x2, 0xf
-  li   x3, 0xf
+  li   x2, 0x8
+  li   x3, 0x8
   tagw x2, x2
   tagw x3, x3
 
