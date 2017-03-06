@@ -45,7 +45,7 @@ RVTEST_CODE_BEGIN
   sd   x5, 0(x10)
   ld   x5, 0(x10)
 
-  # All tests from this point on (other than test 8) are expected to trigger a tag exception
+  # All tests from this point on (other than test 10) are expected to trigger a tag exception
   # NOTE: fences will become unnecessary once the hardware generates precise
   # tag exceptions
 
@@ -128,7 +128,7 @@ RVTEST_CODE_BEGIN
 # Trap handler: if the exception was a tag exception that was expected for
 # this test number, then jump over the next instruction
 mtvec_handler:
-  li   x16, 8
+  li   x16, 10
   beq  TESTNUM, x16, fail
   li   x16, 4
   bge  TESTNUM, x16, expected_tag_xcpt
