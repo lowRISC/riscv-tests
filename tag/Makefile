@@ -4,7 +4,7 @@
 
 src_dir := .
 
-tag_ui_tests = tagrw alu load store
+tag_ui_tests = tagrw alu load store jmp
 tag_si_tests = alucheck loadcheck pctag storecheck
 
 rv64tag_p_tests = $(addprefix rv64tag-p-, $(tag_ui_tests) $(tag_si_tests))
