@@ -111,11 +111,4 @@ RVTEST_DATA_BEGIN
 
   TEST_DATA
 
-  tdat:  .dword 0x0000ffff0f0f0f0f
-.align 6
-         .dword 0x0000000000000000
-.align 6
-         .dword 0x0000000000000000
-  tdat2: .dword 0x0000ffff0f0f0f0f
-
 RVTEST_DATA_END
