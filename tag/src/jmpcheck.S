@@ -19,9 +19,10 @@ RVTEST_CODE_BEGIN
   slli x1, x1, TSHIM_JMP_CHECK
   csrw tagctrl, x1
 
-  # There should be no exception for jalr on a register with masked out tags
+  # There should be no exception for jalr on a register with tags matching the
+  # mask
   li   TESTNUM, 2
-  li   x10, 0x6
+  li   x10, 0x1
   la   x5, t2tgt
   tagw x5, x10
   jalr x0, x5, 0
@@ -30,10 +31,8 @@ t2tgt:
   # Ensure that the jump doesn't take place if an exception is raised, and
   # that the exception is raised immediately
   li   TESTNUM, 3
-  li   x10, 0x1
   li   x6, 0xf00
   la   x5, t3tgt
-  tagw x5, x10
   jalr x6, x5, 0
   li   x10, 0
   bne  x10, x0, t3suc
