@@ -77,7 +77,37 @@ RVTEST_CODE_BEGIN
   TINST_NOPROP(40, subw x4, x2, x3);
   TINST_NOPROP(41, xor x4, x2, x3);
 
-  # Enable ALU propagation. tagr/tagw should still not trigger an exception
+  # make sure tag check is on rs1_tag | rs2_tag
+  TINST_NOPROP(114, add x4, x2, x0);
+  TINST_NOPROP(115, addw x4, x2, x0);
+  TINST_NOPROP(116, and x4, x2, x0);
+  TINST_NOPROP(117, div x4, x2, x0);
+  TINST_NOPROP(118, divu x4, x2, x0);
+  TINST_NOPROP(119, divuw x4, x2, x0);
+  TINST_NOPROP(120, divw x4, x2, x0);
+  TINST_NOPROP(121, mul x4, x2, x0);
+  TINST_NOPROP(122, mulh x4, x2, x0);
+  TINST_NOPROP(123, mulhsu x4, x2, x0);
+  TINST_NOPROP(124, mulhu x4, x2, x0);
+  TINST_NOPROP(125, mulw x4, x2, x0);
+  TINST_NOPROP(126, or x4, x2, x0);
+  TINST_NOPROP(127, rem x4, x2, x0);
+  TINST_NOPROP(128, remu x4, x2, x0);
+  TINST_NOPROP(129, remuw x4, x2, x0);
+  TINST_NOPROP(130, remw x4, x2, x0);
+  TINST_NOPROP(131, sll x4, x2, x0);
+  TINST_NOPROP(132, sllw x4, x2, x0);
+  TINST_NOPROP(133, slt x4, x2, x0);
+  TINST_NOPROP(134, sltu x4, x2, x0);
+  TINST_NOPROP(135, sra x4, x2, x0);
+  TINST_NOPROP(136, sraw x4, x2, x0);
+  TINST_NOPROP(137, srl x4, x2, x0);
+  TINST_NOPROP(138, srlw x4, x2, x0);
+  TINST_NOPROP(139, sub x4, x2, x0);
+  TINST_NOPROP(140, subw x4, x2, x0);
+  TINST_NOPROP(141, xor x4, x2, x0);
+
+# Enable ALU propagation. tagr/tagw should still not trigger an exception
   li   x1, TMASK_ALU_PROP
   csrs tagctrl, x1
   li   TESTNUM, 42
