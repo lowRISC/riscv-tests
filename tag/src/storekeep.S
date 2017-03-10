@@ -73,6 +73,44 @@ RVTEST_CODE_BEGIN
   tagr x5, x5
   bne  x5, x6, fail
 
+  # test the slight chance that forwarding in D$ might affect the results
+  li   TESTNUM, 8
+  tagw x5, x0
+.align 6
+  sd   x5, 0(x10)
+  ld   x5, 0(x10)
+  tagr x5, x5
+  bne  x5, x6, fail
+
+  li   TESTNUM, 9
+  tagw x5, x0
+.align 6
+  sd   x5, 0(x10)
+  nop
+  ld   x5, 0(x10)
+  tagr x5, x5
+  bne  x5, x6, fail
+
+  li   TESTNUM, 10
+  tagw x5, x0
+.align 6
+  sd   x5, 0(x10)
+  nop
+  nop
+  ld   x5, 0(x10)
+  tagr x5, x5
+  bne  x5, x6, fail
+
+  li   TESTNUM, 11
+  tagw x5, x0
+.align 6
+  sd   x5, 0(x10)
+  nop
+  nop
+  nop
+  ld   x5, 0(x10)
+  tagr x5, x5
+  bne  x5, x6, fail
 
   TEST_PASSFAIL
 
