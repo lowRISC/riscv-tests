@@ -55,7 +55,7 @@ RVTEST_CODE_BEGIN
   # tagged instruction should not be executed
 
   # make sure the update of tagctrl takes immediate effect as fetch check happens on ID stage
-  li   TESTNUM, 3
+  li   TESTNUM, 2
   li   x1, 0x1
   slli x1, x1, TSHIM_FETCH_CHECK
 .align 6
