@@ -5,9 +5,10 @@
 src_dir := .
 
 tag_ui_tests = tagrw alu load store storekeep jmp
-tag_si_tests = alucheck loadcheck pctag storecheck jmpcheck fetchcheck
+tag_mi_tests = alucheck loadcheck pctag storecheck jmpcheck fetchcheck
+tag_si_tests = jmpcheck-s
 
-rv64tag_p_tests = $(addprefix rv64tag-p-, $(tag_ui_tests) $(tag_si_tests))
+rv64tag_p_tests = $(addprefix rv64tag-p-, $(tag_ui_tests) $(tag_mi_tests) $(tag_si_tests))
 rv64tag_v_tests = $(addprefix rv64tag-v-, $(tag_ui_tests))
 spike_tests += $(rv64tag_p_tests) $(rv64tag_v_tests)
 
