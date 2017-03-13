@@ -7,7 +7,7 @@
 # Test exceptions when storing to locations with certain tag values.
 #
 
-#include "tag_macro.h"
+#define __TAG_MODE
 #include "riscv_test.h"
 #include "test_macros.h"
 

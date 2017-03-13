@@ -7,7 +7,7 @@
 # Test exceptions when executing an instruction matching the fetchcheck mask
 #
 
-#include "tag_macro.h"
+#define __TAG_MODE
 #include "riscv_test.h"
 #include "test_macros.h"
 

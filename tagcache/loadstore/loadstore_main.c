@@ -11,8 +11,8 @@
 #define TAG_MASK 0xF
 
 int load_tag(void *addr) {
-  int rv = 32;
-  asm volatile ("ltag %0, 0(%1)"
+  int rv;
+  asm volatile ("lw %0, 0(%1); tagr %0, %0"
                 :"=r"(rv)
                 :"r"(addr)
                 );
@@ -21,7 +21,7 @@ int load_tag(void *addr) {
 
 
 void store_tag(void *addr, int tag) {
-  asm volatile ("stag %0, 0(%1)"
+  asm volatile ("tagw %0, %0; andi %0, %0, 0; amoor.w %0, %0, 0(%1)"
                 :
                 :"r"(tag), "r"(addr)
                 );
@@ -64,6 +64,10 @@ int main( int argc, char* argv[] )
   uint64_t rp=0, wp=0;
   uint64_t cnt =0;
   uint8_t buf_valid = 0;
+
+  // enable tag ALU/LOAD/STORE Propagartion
+  uint64_t tag_mask = TMASK_ALU_PROP|TMASK_LOAD_PROP|TMASK_STORE_PROP;
+  write_csr(tagctrl, tag_mask);
 
   // this is improper
 

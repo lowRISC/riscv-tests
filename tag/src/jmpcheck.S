@@ -7,7 +7,7 @@
 # Test exceptions when performing a jalr on an incorrectly tagged register
 #
 
-#include "tag_macro.h"
+#define __TAG_MODE
 #include "riscv_test.h"
 #include "test_macros.h"
 

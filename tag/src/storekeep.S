@@ -7,7 +7,7 @@
 # Test support for 'sticky' in-memory tags
 #
 
-#include "tag_macro.h"
+#define __TAG_MODE
 #include "riscv_test.h"
 #include "test_macros.h"
 

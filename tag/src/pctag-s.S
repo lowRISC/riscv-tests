@@ -7,7 +7,7 @@
 # Test pc tag.
 #
 
-#include "tag_macro.h"
+#define __TAG_MODE
 #include "riscv_test.h"
 #include "test_macros.h"
 
