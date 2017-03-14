@@ -28,7 +28,7 @@ void store_tag(void *addr, int tag) {
 }
 
 static uint8_t * tags[NUM_TAGS];
-static uint8_t buf[MAX_ADDR];
+static uint8_t * buf = (uint8_t *)(0x50000000llu);
 static uint64_t ran_num = 0x729ac5b1519fac05;
 
 uint64_t random() {
