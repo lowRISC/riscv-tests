@@ -49,6 +49,9 @@ RVTEST_CODE_BEGIN
   tagw x6, x4
   sw   x6, 0(x5)
 
+  # make sure the above seting takes effect
+  fence.i
+
   li   x10, 0xf00
 
   # An exception should take place immediately if the mask matches, and the
