@@ -6,8 +6,7 @@
 #include <stdio.h>
 
 #define NUM_TAGS 1024
-#define MAX_ADDR 0x20000000
-#define ADDR_MASK 0x1FFFFFF8
+#define ADDR_MASK 0x03FFFFF8
 #define TAG_MASK 0xF
 
 int load_tag(void *addr) {
@@ -28,7 +27,7 @@ void store_tag(void *addr, int tag) {
 }
 
 static uint8_t * tags[NUM_TAGS];
-static uint8_t * buf = (uint8_t *)(0x50000000llu);
+static uint8_t * buf = (uint8_t *)(0x41000000llu);
 static uint64_t ran_num = 0x729ac5b1519fac05;
 
 uint64_t random() {
