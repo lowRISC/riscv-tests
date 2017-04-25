@@ -36,12 +36,12 @@ test_start:
   # Test setup
   la   x10, tdat
   li   x1, TMASK_LOAD_PROP
-  csrw tagctrl, x1
+  csrw utagctrl, x1
   li   x1, TMASK_STORE_PROP
-  csrs tagctrl, x1
+  csrs utagctrl, x1
   li   x1, 0x9
   slli x1, x1, TSHIM_LOAD_CHECK
-  csrs tagctrl, x1
+  csrs utagctrl, x1
 
   # Loads should be unaffected when the destination address has no tags
   li   TESTNUM, 2
@@ -115,7 +115,7 @@ test_start:
   # Exceptions should be triggered regardless of whether load propagation is
   # enabled
   li   x1, TMASK_LOAD_PROP
-  csrc tagctrl, x1
+  csrc utagctrl, x1
 
   li   TESTNUM, 11
   lw   x0, 64(x10)

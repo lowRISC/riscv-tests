@@ -15,7 +15,7 @@ RVTEST_RV64U
 RVTEST_CODE_BEGIN
 
 # disable tag control CSR
-        csrw tagctrl, x0        ;
+        csrw utagctrl, x0       ;
 
 # x0 should have a zero tag
         TEST_CASE( 2, x5, 0,     \
@@ -30,7 +30,7 @@ RVTEST_CODE_BEGIN
 # enable alu propagation with 0x1
         li   x1, 0x1            ;
         slli x1, x1, TSHIM_ALU_PROP ;
-        csrw tagctrl, x1        ;
+        csrw utagctrl, x1       ;
 
 # propagate zero tag
         TEST_CASE( 4, x5, 0,     \
@@ -49,7 +49,7 @@ RVTEST_CODE_BEGIN
 # enable alu propagation with 0x2
         li   x2, 0x2            ;
         slli x2, x2, TSHIM_ALU_PROP ;
-        csrw tagctrl, x2        ;
+        csrw utagctrl, x2       ;
 
 # propagate 0x2 tag
         TEST_CASE( 6, x5, 0x2,   \
@@ -62,7 +62,7 @@ RVTEST_CODE_BEGIN
 # enable alu progagation with 0x3
         li   x3, 0x3            ;
         slli x3, x3, TSHIM_ALU_PROP ;
-        csrw tagctrl, x3        ;
+        csrw utagctrl, x3       ;
 
 # propagate 0x3 tag
         TEST_CASE( 7, x5, 0x3,   \
@@ -84,7 +84,7 @@ RVTEST_CODE_BEGIN
         )
 
 # alu's impact on tagr
-        csrw tagctrl, x0        ;
+        csrw utagctrl, x0       ;
         TEST_CASE(10, x5, 0x3,   \
         tagr x5, x4             ;\
         )
@@ -109,7 +109,7 @@ RVTEST_CODE_BEGIN
 # enable alu propagation
         li   x1, 0xf            ;
         slli x1, x1, TSHIM_ALU_PROP ;
-        csrw tagctrl, x1        ;
+        csrw utagctrl, x1       ;
 
 #define TINST_CHECK(tnum, expected, instr_line...) \
         TEST_CASE(tnum, x5, expected, \

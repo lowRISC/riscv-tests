@@ -66,7 +66,7 @@ int main( int argc, char* argv[] )
 
   // enable tag ALU/LOAD/STORE Propagartion
   uint64_t tag_mask = TMASK_ALU_PROP|TMASK_LOAD_PROP|TMASK_STORE_PROP;
-  write_csr(tagctrl, tag_mask);
+  write_csr(utagctrl, tag_mask);
 
   // this is improper
 

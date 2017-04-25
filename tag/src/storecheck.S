@@ -17,12 +17,12 @@ RVTEST_CODE_BEGIN
   # Test setup
   la   x10, tdat
   li   x1, TMASK_LOAD_PROP
-  csrw tagctrl, x1
+  csrw utagctrl, x1
   li   x1, TMASK_STORE_PROP
-  csrs tagctrl, x1
+  csrs utagctrl, x1
   li   x1, 0x9
   slli x1, x1, TSHIM_STORE_CHECK
-  csrs tagctrl, x1
+  csrs utagctrl, x1
 
   # Stores should be unaffected when the destination address has no tags
   li   TESTNUM, 2

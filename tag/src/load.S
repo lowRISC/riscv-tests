@@ -27,9 +27,9 @@ RVTEST_CODE_BEGIN
         )
 
         li   x1, TMASK_LOAD_PROP ;
-        csrw tagctrl, x1        ;
+        csrw utagctrl, x1       ;
         li   x1, TMASK_STORE_PROP ;
-        csrs tagctrl, x1        ;
+        csrs utagctrl, x1       ;
 
 # set a tag to memory
         TEST_CASE( 4, x5, 2,     \
@@ -75,7 +75,7 @@ RVTEST_CODE_BEGIN
 
 # disable store tag propagation
         li   x1, TMASK_STORE_PROP ;
-        csrc tagctrl, x1        ;
+        csrc utagctrl, x1       ;
 
 # load again to make sure it is not just forwarding
         TEST_CASE( 8, x5, 2,     \
@@ -103,9 +103,9 @@ RVTEST_CODE_BEGIN
 # Set a partial load tag propagation mask
         li   x1, 0x9
         slli x1, x1, TSHIM_LOAD_PROP
-        csrw tagctrl, x1
+        csrw utagctrl, x1
         li   x1, TMASK_STORE_PROP
-        csrs tagctrl, x1
+        csrs utagctrl, x1
 
 # Ensure the propagation mask works
         TEST_CASE( 12, x5, 9,    \

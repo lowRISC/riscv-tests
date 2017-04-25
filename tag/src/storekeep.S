@@ -16,12 +16,12 @@ RVTEST_CODE_BEGIN
 
   # Test setup
   li   x1, TMASK_LOAD_PROP
-  csrw tagctrl, x1
+  csrw utagctrl, x1
   li   x1, TMASK_STORE_PROP
-  csrs tagctrl, x1
+  csrs utagctrl, x1
   li   x1, 0x9
   slli x1, x1, TSHIM_STORE_KEEP
-  csrs tagctrl, x1
+  csrs utagctrl, x1
   la   x10, tdat
 
   # Tags in the STORE_KEEP mask can be set as usual
@@ -64,7 +64,7 @@ RVTEST_CODE_BEGIN
 
   # STORE_KEEP should be unaffected by whether store propagation is enabled
   li   x1, TMASK_STORE_PROP
-  csrc tagctrl, x1
+  csrc utagctrl, x1
 
   li   TESTNUM, 7
   tagw x5, x0

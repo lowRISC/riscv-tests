@@ -27,7 +27,7 @@ RVTEST_CODE_BEGIN
         or   x3, x3, x2         ;
         li   x2, TMASK_LOAD_PROP;
         or   x3, x3, x2         ;
-        csrw tagctrl, x3        ;
+        csrw utagctrl, x3       ;
 
 # branch with pc tag check ok, cache miss
         li   TESTNUM, 3         ;
@@ -142,9 +142,9 @@ RVTEST_CODE_BEGIN
 
 # disable direct control flow target
         slli x3, x1, TSHIM_CFLOW_DIR_TGT ;
-        csrc tagctrl, x3        ;
+        csrc utagctrl, x3       ;
         slli x3, x1, TSHIM_CFLOW_INDIR_TGT ;
-        csrs tagctrl, x3        ;
+        csrs utagctrl, x3       ;
 
 # jalr with pc tag check ok
         li   TESTNUM, 13        ;
@@ -197,7 +197,7 @@ RVTEST_CODE_BEGIN
         j    fail               ;
 
 
-        csrw tagctrl, x0        ;
+        csrw utagctrl, x0       ;
         TEST_PASSFAIL
 
 mtvec_handler:

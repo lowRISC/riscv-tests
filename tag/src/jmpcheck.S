@@ -17,7 +17,7 @@ RVTEST_CODE_BEGIN
   # Test setup
   li   x1, 0x9
   slli x1, x1, TSHIM_JMP_CHECK
-  csrw tagctrl, x1
+  csrw utagctrl, x1
 
   # There should be no exception for jalr on a register with tags matching the
   # mask

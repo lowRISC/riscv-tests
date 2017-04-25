@@ -35,7 +35,7 @@ test_start:
 
   # Test setup
   li   x1, TMASK_STORE_PROP
-  csrw tagctrl, x1
+  csrw utagctrl, x1
 
   # Apply tags to the appropriate point in each test
   la   x5, t2_0b0101
@@ -78,7 +78,7 @@ test_start:
   li   x1, 0x1
   slli x1, x1, TSHIM_FETCH_CHECK
 .align 6
-  csrw tagctrl, x1
+  csrw utagctrl, x1
 t2_0b0101:
   li   x10, 0x0
   beq  x10, x0, fail
@@ -87,7 +87,7 @@ t2_0b0101:
   li   TESTNUM, 3
   li   x1, 0x1
   slli x1, x1, TSHIM_FETCH_CHECK
-  csrw tagctrl, x1
+  csrw utagctrl, x1
 .align 3
 t3_0b11:
   li   x10, 0x0
@@ -96,7 +96,7 @@ t3_0b11:
   li   TESTNUM, 4
   li   x1, 0x2
   slli x1, x1, TSHIM_FETCH_CHECK
-  csrw tagctrl, x1
+  csrw utagctrl, x1
 .align 3
 t4_0b10:
   li   x10, 0x0
@@ -106,7 +106,7 @@ t4_0b10:
   li   TESTNUM, 5
   li   x1, 0x1
   slli x1, x1, TSHIM_FETCH_CHECK
-  csrw tagctrl, x1
+  csrw utagctrl, x1
 .align 3
 t5_0b0100:
   nop
@@ -117,7 +117,7 @@ t5_0b0100:
   li   TESTNUM, 6
   li   x1, 0x2
   slli x1, x1, TSHIM_FETCH_CHECK
-  csrw tagctrl, x1
+  csrw utagctrl, x1
 .align 3
 t6_0b01:
 

@@ -16,7 +16,7 @@ RVTEST_CODE_BEGIN
 
   # Test setup
   li   x1, TMASK_JMP_PROP
-  csrw tagctrl, x1
+  csrw utagctrl, x1
   li   x6, 0xf
 
   li   TESTNUM, 2
@@ -35,7 +35,7 @@ t3tgt:
   bne  x5, x6, fail
 
   # Check the tag of the link register is set according to tagctrl
-  csrw tagctrl, x0
+  csrw utagctrl, x0
   li   x6, 0x0
 
   li   TESTNUM, 4
@@ -75,7 +75,7 @@ t7tgt:
 
   # Test setup
   li   x1, TMASK_JMP_PROP
-  csrw tagctrl, x1
+  csrw utagctrl, x1
   li   x6, 0xf
 
   li   TESTNUM, 8
@@ -96,7 +96,7 @@ t9tgt:
   bne  x5, x6, fail
 
   # Check the tag of the link register is set according to tagctrl
-  csrw tagctrl, x0
+  csrw utagctrl, x0
   li   x6, 0x0
 
   li   TESTNUM, 10

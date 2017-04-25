@@ -17,9 +17,9 @@ RVTEST_CODE_BEGIN
         la   x10, tdat          ;
         
         li   x1, TMASK_LOAD_PROP ;
-        csrw tagctrl, x1        ;
+        csrw utagctrl, x1       ;
         li   x1, TMASK_STORE_PROP ;
-        csrs tagctrl, x1        ;
+        csrs utagctrl, x1       ;
 
 # lb, lw, lh has no different in set tag
         TEST_CASE( 2, x5, 1,     \
@@ -61,9 +61,9 @@ RVTEST_CODE_BEGIN
 # Set a partial store tag propagation mask
         li   x1, 0x9
         slli x1, x1, TSHIM_STORE_PROP
-        csrw tagctrl, x1
+        csrw utagctrl, x1
         li   x1, TMASK_LOAD_PROP
-        csrs tagctrl, x1
+        csrs utagctrl, x1
 
 # Ensure the propagation mask works
         TEST_CASE( 6, x5, 9,     \

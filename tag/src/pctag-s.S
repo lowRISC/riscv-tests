@@ -37,7 +37,7 @@ test_start:
         or   x3, x3, x2         ;
         li   x2, TMASK_LOAD_PROP;
         or   x3, x3, x2         ;
-        csrw tagctrl, x3        ;
+        csrw utagctrl, x3       ;
 
 # branch with pc tag check ok, cache miss
         li   TESTNUM, 3         ;
@@ -152,9 +152,9 @@ test_start:
 
 # disable direct control flow target
         slli x3, x1, TSHIM_CFLOW_DIR_TGT ;
-        csrc tagctrl, x3        ;
+        csrc utagctrl, x3       ;
         slli x3, x1, TSHIM_CFLOW_INDIR_TGT ;
-        csrs tagctrl, x3        ;
+        csrs utagctrl, x3       ;
 
 # jalr with pc tag check ok
         li   TESTNUM, 13        ;
@@ -207,7 +207,7 @@ test_start:
         j    fail               ;
 
 
-        csrw tagctrl, x0        ;
+        csrw utagctrl, x0       ;
         TEST_PASSFAIL
 
 stvec_handler:

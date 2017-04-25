@@ -36,7 +36,7 @@ test_start:
   # Test setup
   li   x1, 0x9
   slli x1, x1, TSHIM_ALU_CHECK
-  csrw tagctrl, x1
+  csrw utagctrl, x1
 
   # Exceptions should be raised even while propagation is disabled
   li   x2, 0x1
@@ -128,7 +128,7 @@ test_start:
 
 # Enable ALU propagation. tagr/tagw should still not trigger an exception
   li   x1, TMASK_ALU_PROP
-  csrs tagctrl, x1
+  csrs utagctrl, x1
   li   TESTNUM, 42
   li   x2, 0x8
   li   x3, 0x8

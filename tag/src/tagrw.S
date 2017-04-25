@@ -15,7 +15,7 @@ RVTEST_RV64U
 RVTEST_CODE_BEGIN
 
 # disable tag control CSR
-        csrw tagctrl, x0        ;
+        csrw utagctrl, x0       ;
 
 # x0 should have a zero tag
         TEST_CASE( 2, x5, 0,     \
