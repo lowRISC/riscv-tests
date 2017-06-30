@@ -21,6 +21,10 @@ RVTEST_CODE_BEGIN
         li   x1, TMASK_STORE_PROP ;
         csrs utagctrl, x1       ;
 
+        # Spare load to trigger page fault, so all data is paged in when
+        # the actual test starts
+        ld x1, 0(x10)
+
 # lb, lw, lh has no different in set tag
         TEST_CASE( 2, x5, 1,     \
         li   x1, 1              ;\
