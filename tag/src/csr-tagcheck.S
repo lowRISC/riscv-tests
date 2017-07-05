@@ -46,18 +46,20 @@ test_start:
 
   TEST_PASSFAIL
 
-#undef  TEST_CSR        
 #define TEST_CSR(csr) \
   /* test w instruction and save csr */ \
   csrrw x10, csr, x2   ;\
-  /* read value to check and clear tag on csr */ \
+  li     x5, 0         ;\
+  tagw   x5, x0        ;\
   csrrw x5, csr, x0    ;\
   bne   x5, x2, fail   ;\
   tagr  x5, x5         ;\
   bne   x5, x3, fail   ;\
   /* test s instruction and clear tag on x5 */ \
   csrrs x5, csr, x2    ;\
-  /* read value to check and clear tag on csr */ \
+  bne   x5, x0, fail   ;\
+  tagr  x5, x5         ;\
+  bne   x5, x0, fail   ;\
   csrrw x5, csr, x0    ;\
   bne   x5, x2, fail   ;\
   tagr  x5, x5         ;\
@@ -65,18 +67,59 @@ test_start:
   /* write value to test c instruction */ \
   tagw  x5, x0         ;\
   li    x5, 8          ;\
-  csrrw x5, csr, x5    ;\
+  csrrw x7, csr, x5    ;\
   /* test c instruction */ \
   csrrc x6, csr, x2    ;\
-  /* read value to check and clear tag on csr */ \
+  bne   x6, x5, fail   ;\
+  tagr  x6, x6         ;\
+  bne   x6, x0, fail   ;\
   csrrw x5, csr, x0    ;\
   bne   x5, x0, fail   ;\
   tagr  x5, x5         ;\
   bne   x5, x3, fail   ;\
-  /* restore csr value and clear tag on x5 */ \
-  csrrw x5, csr, x10   ;
+  /* tag csr to make sure immediate instructions */ \
+  /* preserve tags. clear x5 */ \
+  csrrw  x5, csr, x2   ;\
+  /* test wi instruction */ \
+  csrrwi x5, csr, 12   ;\
+  bne    x5, x2, fail  ;\
+  tagr   x5, x5        ;\
+  bne    x5, x3, fail  ;\
+  li     x5, 0         ;\
+  csrrw  x5, csr, x2   ;\
+  li     x6, 12        ;\
+  bne    x5, x6, fail  ;\
+  tagr   x5, x5        ;\
+  bne    x5, x0, fail  ;\
+  /* test si instruction */ \
+  li     x5, 0         ;\
+  tagw   x5, x0        ;\
+  csrrsi x5, csr, 12   ;\
+  bne    x5, x2, fail  ;\
+  tagr   x5, x5        ;\
+  bne    x5, x3, fail  ;\
+  li     x5, 0         ;\
+  csrrw  x5, csr, x2   ;\
+  li     x6, 12        ;\
+  bne    x5, x6, fail  ;\
+  tagr   x5, x5        ;\
+  bne    x5, x0, fail  ;\
+  /* test ci instruction */ \
+  li     x5, 0         ;\
+  tagw   x5, x0        ;\
+  csrrci x5, csr, 8    ;\
+  bne    x5, x2, fail  ;\
+  tagr   x5, x5        ;\
+  bne    x5, x3, fail  ;\
+  tagw   x5, x0        ;\
+  /* restore csr value and read csr */ \
+  csrrw x5, csr, x10   ;\
+  bne   x5, x0, fail   ;\
+  tagr  x5, x5         ;\
+  bne   x5, x0, fail   ;
 
-      
+        
+        
 stvec_handler:
   csrr x17, scause
   li   x16, CAUSE_USER_ECALL

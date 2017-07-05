@@ -4,7 +4,7 @@
 
 src_dir := .
 
-tag_ui_tests = tagrw alu load store storekeep jmp pagefault
+tag_ui_tests = tagrw alu load store storekeep jmp 
 tag_mi_tests = alucheck loadcheck pctag storecheck jmpcheck fetchcheck csr-tagcheck tagctrl-prvcheck
 tag_si_tests = alucheck-s loadcheck-s pctag-s storecheck-s jmpcheck-s fetchcheck-s 
 

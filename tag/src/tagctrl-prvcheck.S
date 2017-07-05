@@ -4,7 +4,7 @@
 # tagctrl-prvcheck.S
 #-----------------------------------------------------------------------------
 #
-# Basic test of utagctrl/stagctrl
+# Basic tests for utagctrl/stagctrl/mtagctrl
 #
 
 #define __TAG_MODE
