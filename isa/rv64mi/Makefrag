@@ -3,7 +3,7 @@
 #-----------------------------------------------------------------------
 
 rv64mi_sc_tests = \
-	dirty \
+	breakpoint \
 	csr \
 	mcsr \
 	illegal \
@@ -11,9 +11,6 @@ rv64mi_sc_tests = \
 	ma_addr \
 	scall \
 	sbreak \
-
-rv64mi_mc_tests = \
-	ipi \
 
 rv64mi_p_tests = $(addprefix rv64mi-p-, $(rv64mi_sc_tests))
 

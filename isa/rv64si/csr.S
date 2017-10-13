@@ -24,6 +24,11 @@ RVTEST_CODE_BEGIN
   #define SSTATUS_SPP MSTATUS_MPP
 #endif
 
+  # For RV64, make sure UXL encodes RV64.  (UXL does not exist for RV32.)
+#if __riscv_xlen == 64
+  TEST_CASE(13, a0, SSTATUS_UXL & (SSTATUS_UXL << 1), csrr a0, sstatus; li a1, SSTATUS_UXL; and a0, a0, a1)
+#endif
+
   csrwi sscratch, 3
   TEST_CASE( 2, a0,         3, csrr a0, sscratch);
   TEST_CASE( 3, a1,         3, csrrci a1, sscratch, 1);
@@ -34,11 +39,31 @@ RVTEST_CODE_BEGIN
   TEST_CASE( 8, a0, 0xbad0000, li a0, 0x000beef; csrrs a0, sscratch, a0);
   TEST_CASE( 9, a0, 0xbadbeef, csrr a0, sscratch);
 
-  # Make sure writing the cycle counter causes an exception.
-  # Don't run in supervisor, as we don't delegate illegal instruction traps.
 #ifdef __MACHINE_MODE
-  TEST_CASE(10, a0, 255, li a0, 255; csrrw a0, cycle, x0);
+  # Is F extension present?
+  csrr a0, misa
+  andi a0, a0, (1 << ('F' - 'A'))
+  beqz a0, 1f
+  # If so, make sure FP stores have no effect when mstatus.FS is off.
+  li a1, MSTATUS_FS
+  csrs mstatus, a1
+#ifdef __riscv_flen
+  fmv.s.x f0, x0
+  csrc mstatus, a1
+  la a1, fsw_data
+  TEST_CASE(10, a0, 1, fsw f0, (a1); lw a0, (a1));
+#else
+  # Fail if this test is compiled without F but executed on a core with F.
+  TEST_CASE(10, zero, 1)
 #endif
+1:
+
+  # Figure out if 'U' is set in misa
+  csrr a0, misa   # a0 = csr(misa)
+  srli a0, a0, 20 # a0 = a0 >> 20
+  andi a0, a0, 1  # a0 = a0 & 1
+  beqz a0, finish # if no user mode, skip the rest of these checks
+#endif /* __MACHINE_MODE */
 
   # jump to user land
   li t0, SSTATUS_SPP
@@ -48,26 +73,35 @@ RVTEST_CODE_BEGIN
   sret
   1:
 
+  # Make sure writing the cycle counter causes an exception.
+  # Don't run in supervisor, as we don't delegate illegal instruction traps.
+#ifdef __MACHINE_MODE
+  TEST_CASE(11, a0, 255, li a0, 255; csrrw a0, cycle, x0);
+#endif
+
   # Make sure reading status in user mode causes an exception.
   # Don't run in supervisor, as we don't delegate illegal instruction traps.
 #ifdef __MACHINE_MODE
-  TEST_CASE(11, a0, 255, li a0, 255; csrr a0, sstatus)
+  TEST_CASE(12, a0, 255, li a0, 255; csrr a0, sstatus)
 #else
-  TEST_CASE(11, x0, 0, nop)
+  TEST_CASE(12, x0, 0, nop)
 #endif
 
+finish:
   RVTEST_PASS
 
   # We should only fall through to this if scall failed.
   TEST_PASSFAIL
 
+  .align 2
 stvec_handler:
-  # Trapping on tests 10 and 11 is good news.
+  # Trapping on tests 10-12 is good news.
   # Note that since the test didn't complete, TESTNUM is smaller by 1.
   li t0, 9
-  beq TESTNUM, t0, privileged
-  li t0, 10
-  beq TESTNUM, t0, privileged
+  bltu TESTNUM, t0, 1f
+  li t0, 11
+  bleu TESTNUM, t0, privileged
+1:
 
   # catch RVTEST_PASS and kick it up to M-mode
   csrr t0, scause
@@ -91,6 +125,6 @@ RVTEST_CODE_END
   .data
 RVTEST_DATA_BEGIN
 
-  TEST_DATA
+fsw_data: .word 1
 
 RVTEST_DATA_END
