@@ -3,6 +3,8 @@
 #-----------------------------------------------------------------------
 # Yunsup Lee (yunsup@cs.berkeley.edu)
 #
+.SUFFIXES:
+.SUFFIXES: .c .o .S
 
 default: all
 
