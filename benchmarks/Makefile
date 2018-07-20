@@ -4,7 +4,9 @@
 # Yunsup Lee (yunsup@cs.berkeley.edu)
 #
 
-default: all
+.SUFFIXES:
+
+default: riscv
 
 src_dir = .
 
